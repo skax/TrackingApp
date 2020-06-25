@@ -1,8 +1,12 @@
 import {createStore, combineReducers} from 'redux';
-import trackReducer from "./tracks/reducers/tracksReducer";
+import trackReducer, { TrackModel } from "./tracks/reducers/tracksReducer";
 
-const rootReducer = combineReducers({
-    trackReducer: trackReducer,
+export interface State {
+    track: TrackModel;
+}
+
+const rootReducer = combineReducers<State>({
+    track: trackReducer,
 });
 
 export const store = createStore(rootReducer);
