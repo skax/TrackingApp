@@ -8,7 +8,7 @@ export interface LocationSnapshotData {
     lat: number;
     velocity: number;
 }
-
+//chuj
 export default function App() {
     const [data, setData] = useState<LocationSnapshotData[]>([]);
     const velocityData: number[] = data.map(item => item.velocity);
