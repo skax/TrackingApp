@@ -2,6 +2,8 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {Button, StyleSheet, View} from 'react-native';
 import * as Location from 'expo-location';
 import PlotComponent from "./components/plot/PlotComponent";
+import {Provider} from 'react-redux';
+import {store} from "./store/store";
 
 export interface LocationSnapshotData {
     lon: number;
@@ -42,15 +44,17 @@ export default function App() {
     }, []);
 
     return (
-        <View style={styles.plotContainer}>
-            <PlotComponent
-                velocityData={velocityData}
-                height={150}
-                currentMax={Math.max(...velocityData)}
-                average={calculateAverage(velocityData)}
-            />
-            <Button title={"Clear"} onPress={() => setData([])}/>
-        </View>
+        <Provider store={store}>
+            <View style={styles.plotContainer}>
+                <PlotComponent
+                    velocityData={velocityData}
+                    height={150}
+                    currentMax={Math.max(...velocityData)}
+                    average={calculateAverage(velocityData)}
+                />
+                <Button title={"Clear"} onPress={() => setData([])}/>
+            </View>
+        </Provider>
     );
 }
 
