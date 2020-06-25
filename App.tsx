@@ -23,7 +23,7 @@ TaskManager.defineTask('LocationFinder', ({data, error}) => {
     const snapshot: TrackSnapshot = {
         lon: longitude,
         lat: latitude,
-        velocity: speed,
+        velocity: speed * 3.6,
         time: new Date()
     };
 
