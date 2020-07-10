@@ -1,12 +1,11 @@
 import {useSelector} from "react-redux";
-import {State} from "../../store/store";
-import {TrackModel} from "../../store/tracks/reducers/tracksReducer";
-import React, { useEffect }from "react";
+import {State, store} from "../../store/store";
+import {TracksModel} from "../../store/tracks/reducers/tracksReducer";
+import React from "react";
 import PlotComponent from "../plot/PlotComponent";
-import {Button, StyleSheet, View, Text} from "react-native";
-import {TrackSnapshot} from "../../store/tracks/track";
-import {store} from "../../store/store"
-import * as Location from "expo-location";
+import {Button, StyleSheet, View} from "react-native";
+import {TrackSnapshot, TrackStatus} from "../../store/tracks/track";
+import {clearAllTracks, pauseTrack, startTrack, stopTrack} from "../../store/tracks/actions/tracksActions";
 
 export interface LocationSnapshotData {
     lon: number;
@@ -15,27 +14,13 @@ export interface LocationSnapshotData {
 }
 
 const HomeScreen = () => {
-    const track = useSelector<State, TrackModel>(state => state.track);
-    
-  /*  useEffect(() => {
-        (async () => {
-            let {status} = await Location.requestPermissionsAsync();
-            
-            if (status) {
-                await Location.startLocationUpdatesAsync('LocationFinder',
-                {
-                    accuracy: Location.Accuracy.High,
-                    timeInterval: 1000,
-                });
+    const track = useSelector<State, TracksModel>(state => state.track);
 
-                return () => {
-                    Location.stopLocationUpdatesAsync("LocationFinder");
-                }
-            }
-        })();
-    }, []); */
-    
-    const velocityData = mapToVelocity(track.track.snapshots);
+    const velocityData: number[] = mapToVelocity(track.currentTrack?.snapshots || []);
+
+    const startAvailable = track.currentTrack === null || track.currentTrack.status === TrackStatus.PAUSED;
+    const pauseAvailable = track.currentTrack && track.currentTrack.status === TrackStatus.RECORDING;
+    const stopAvailable = track.currentTrack && track.currentTrack.status !== TrackStatus.FINISHED;
 
     return (
         <View style={styles.plotContainer}>
@@ -46,10 +31,27 @@ const HomeScreen = () => {
                 average={calculateAverage(velocityData)}
             />
             <View style={styles.buttonContainer}>
-                <Button title={"Pause"} onPress={() => { store.dispatch({type: "pauseRecording", payload: 'paused'})} }/>
-                <Button title={"Stop"} onPress={() => { store.dispatch({type:"stopRecording", payload: 'finished'}) }}/>
-                <Button title={"Start"} onPress={() => { store.dispatch({type:"startRecording", payload: 'recording'}) }}/>
-                <Button title={"Clear"} onPress={() => { store.dispatch({type: "clearStore"})} }/>
+                {startAvailable && (
+                    <Button title={"Start"} onPress={() => {
+                        store.dispatch(startTrack())
+                    }}/>
+                )}
+
+                {pauseAvailable && (
+                    <Button title={"Pause"} onPress={() => {
+                        store.dispatch(pauseTrack())
+                    }}/>
+                )}
+
+                {stopAvailable && (
+                    <Button title={"Stop"} onPress={() => {
+                        store.dispatch(stopTrack())
+                    }}/>
+                )}
+
+                <Button title={"Clear"} onPress={() => {
+                    store.dispatch(clearAllTracks())
+                }}/>
             </View>
         </View>
     );
@@ -82,13 +84,4 @@ const styles = StyleSheet.create({
     }
 });
 
-
 export default HomeScreen;
-
-/* 
-
-1. use effect gdzie startujesz cala impreze z lokalizacja przenosisz z HomeScreen do App zeby pracowal caly czas
-2. musisz wzbogacic stora, gdzie model Track ma dodatkowo status (RECORDING, PAUSE, STOP) i dodac nowe akcje (start, pause, wznow, stopuj) ktore beda dla danego Tracka zmienialy status
-i musisz tam wpierdolic logike ze np nie mozesz wznawiac ani pauzowac skonczonej trasy itd
-
-*/

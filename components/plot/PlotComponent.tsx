@@ -1,6 +1,7 @@
 import {ScrollView, StyleSheet, Text, View} from "react-native";
 import React from "react";
 import PlotPick from "./PlotPick";
+import uuid from "uuid";
 
 export interface PlotComponentProps {
     velocityData: number[];
@@ -11,7 +12,7 @@ export interface PlotComponentProps {
 
 const PlotComponent = (props: PlotComponentProps) => {
     const plot = props.velocityData.map((velocity: number) => {
-        return <PlotPick velocity={velocity} speedMax={props.currentMax} height={props.height}/>
+        return <PlotPick key={uuid()} velocity={velocity} speedMax={props.currentMax} height={props.height}/>
     });
 
     return (
