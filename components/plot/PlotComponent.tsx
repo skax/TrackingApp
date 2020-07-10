@@ -23,6 +23,7 @@ const PlotComponent = (props: PlotComponentProps) => {
             </ScrollView>
 
             <View style={styles.statisticContainer}>
+                <Text style={styles.statisticText}>Current speed: {Math.round(props.velocityData[0])} km/h</Text>
                 <Text style={styles.statisticText}>Current max speed {Math.round(props.currentMax)} km/h</Text>
                 <Text style={styles.statisticText}>Average {Math.round(props.average)} km/h</Text>
             </View>

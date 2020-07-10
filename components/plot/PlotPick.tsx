@@ -16,7 +16,7 @@ const PlotPick = (props: PickProps) => {
 
 const styles = StyleSheet.create({
     pick: {
-        width: 2,
+        width: 5,
         backgroundColor: 'blue',
         marginRight: 1,
     }

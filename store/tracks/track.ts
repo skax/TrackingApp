@@ -3,6 +3,7 @@ export interface Track {
     snapshots: TrackSnapshot[];
 }
 
+
 export interface TrackSnapshot {
     lon: number;
     lat: number;
