@@ -1,73 +1,115 @@
-import {Track} from "../track";
+import {Track, TrackSnapshot, TrackStatus} from "../track";
+import {TrackAction} from "../actions/tracksActions";
+import {TrackActionType} from "../actions/trackActionType";
+import uuid from "uuid";
 
 
-export interface TrackModel {
-    track: Track;
-    status: string;
+export interface TracksModel {
+    currentTrack: Track | null;
     finishedTracks: Track[];
 }
 
- 
-const initialState: TrackModel = {
-    track: {
-        id: 'id',
-        snapshots: [],
-    },
-    status: 'initialState',
-    finishedTracks: []
+
+const initialState: TracksModel = {
+    finishedTracks: [],
+    currentTrack: null,
 }
 
+const trackReducer = (state: TracksModel = initialState, action: TrackAction): TracksModel => {
 
-const trackReducer = (state: TrackModel = initialState, action: any): TrackModel => {
-
-    //console.log('reducer');
-    if(action.type === 'startRecording') {
-        state.status = action.payload;
-        state.track.id = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-        console.log('Zmiana statusu: ', state.status);
-        console.log('state: ', state);
+    if (action.type === TrackActionType.START_TRACK) {
+        return startOrRestart(state);
+    } else if (action.type === TrackActionType.PAUSE_TRACK) {
+        return pause(state);
+    } else if (action.type === TrackActionType.STOP_TRACK) {
+        return stop(state);
+    } else if (action.type === TrackActionType.PUSH_TRACK_SNAPSHOT) {
+        return pushNewSnapshot(state, action.payload);
+    } else if (action.type === TrackActionType.CLEAR_ALL) {
+        return clearAll();
+    } else {
+        return state;
     }
+}
 
-    if(action.type === 'pauseRecording') {
-        state.status = action.payload;
-        console.log('Zmiana statusu: ', state.status);
-        console.log('state: ', state);
-    }
+const startOrRestart = (state: TracksModel): TracksModel => {
+    const currentTrack = state.currentTrack;
+    if (currentTrack) {
+        const restartedTrack = {
+            ...currentTrack,
+            status: TrackStatus.RECORDING
+        }
 
-    if(action.type === 'stopRecording') {
-        state.status = action.payload;
-        const {id, snapshots} = state.track;
-        state.finishedTracks = [ {id, snapshots}, ...state.finishedTracks ];
-        console.log('Zmiana statusu: ', state.status);
-        console.log('state: ', state);
-        console.log('finished: ', state.finishedTracks);
         return {
-            track: {
-                id: 'id',
-                snapshots: [],
-            },
-            status: 'initialState',
-            finishedTracks: state.finishedTracks
+            ...state,
+            currentTrack: restartedTrack
         }
     }
 
-    if(action.type === 'newSnapshot' && state.status === 'recording') {
-        const newSnapshot = action.payload;
-        console.log(newSnapshot);
-        return {
-            track: {
-                ...state.track,
-                snapshots: [newSnapshot, ...state.track.snapshots],
-            },
-            status: 'recording',
-            finishedTracks: state.finishedTracks
+    return {
+        ...state,
+        currentTrack: {
+            id: uuid(),
+            status: TrackStatus.RECORDING,
+            snapshots: []
         }
     }
-    
-    if(action.type === 'clearStore') {
-        return initialState;
+}
+
+const pause = (state: TracksModel): TracksModel => {
+    const currentTrack = state.currentTrack;
+    if (currentTrack) {
+        const pausedTrack = {
+            ...currentTrack,
+            status: TrackStatus.PAUSED
+        }
+
+        return {
+            ...state,
+            currentTrack: pausedTrack
+        }
     }
-    return state; // todo chuj zrobic dalej
+
+    return state;
+}
+
+const stop = (state: TracksModel): TracksModel => {
+    const currentTrack = state.currentTrack;
+    if (currentTrack) {
+        const finishedTrack = {
+            ...currentTrack,
+            status: TrackStatus.FINISHED
+        }
+
+        return {
+            ...state,
+            currentTrack: null,
+            finishedTracks: [finishedTrack, ...state.finishedTracks],
+        }
+    }
+
+    return state;
+}
+
+const pushNewSnapshot = (state: TracksModel, snapshot: TrackSnapshot): TracksModel => {
+    const currentTrack = state.currentTrack;
+    if (currentTrack && currentTrack.status === TrackStatus.RECORDING) {
+        const withNewSnapshot = {
+            ...currentTrack,
+            snapshots: [snapshot, ...currentTrack.snapshots]
+        }
+
+        return {
+            ...state,
+            currentTrack: withNewSnapshot,
+        }
+    }
+
+    return state;
+}
+
+const clearAll = (): TracksModel => {
+    return initialState;
 }
 
 export default trackReducer;
