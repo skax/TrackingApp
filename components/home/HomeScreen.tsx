@@ -66,6 +66,11 @@ const calculateAverage = (number: []): number => {
     return (sum / number.length) || 0;
 }
 
+HomeScreen.navigationOptions = {
+    headerTitle: 'Home'
+}
+
+
 const styles = StyleSheet.create({
     plotContainer: {
         flex: 1,

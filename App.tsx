@@ -5,10 +5,14 @@ import * as TaskManager from 'expo-task-manager';
 import * as Location from "expo-location";
 import {TrackSnapshot} from './store/tracks/track';
 import HomeScreen from "./components/home/HomeScreen";
+import { enableScreens } from 'react-native-screens';
 import {pushNewSnapshot} from "./store/tracks/actions/tracksActions";
+import TrackingNavigator from './navigation/TrackingNavigator';
 
 
 export default function App() {
+
+    enableScreens();
 
     useEffect(() => {
         (async () => {
@@ -35,7 +39,7 @@ export default function App() {
 
     return (
         <Provider store={store}>
-            <HomeScreen/>
+            <TrackingNavigator/>
         </Provider>
     );
 }

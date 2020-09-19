@@ -16,3 +16,9 @@ export interface TrackSnapshot {
     velocity: number;
     time: Date;
 }
+
+export interface TimeData {
+    id: string,
+    start: Date,
+    end: Date
+}
